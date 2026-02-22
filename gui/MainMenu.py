@@ -11,6 +11,7 @@ from utils.imageitem import ImageItem
 class MainMenu(QWidget):
     image_added     = pyqtSignal(str)
     image_clicked   = pyqtSignal(str)
+    image_removed   = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -58,12 +59,25 @@ class MainMenu(QWidget):
         self.image_added.emit(file_path)
 
     def remove_image(self, widget):
-        self.grid_layout.removeWidget(widget)
-        self.image_items.remove(widget)
-        widget.deleteLater()
-        self.rearrange_grid()
+        try:
+            file_path = widget.file_path
+            self.grid_layout.removeWidget(widget)
+            self.image_items.remove(widget)
+            widget.deleteLater()
+            self.rearrange_grid()
+
+            self.image_removed.emit(file_path)
+        except Exception as e:
+            import traceback
+            print("Error in MainMenu.remove_image:")
+            traceback.print_exc()
 
     def rearrange_grid(self):
+        while self.grid_layout.count():
+            item = self.grid_layout.takeAt(0)
+            if item.widget():
+                item.widget().setParent(None)
+
         for index, widget in enumerate(self.image_items):
             row = index // 3
             col = index % 3

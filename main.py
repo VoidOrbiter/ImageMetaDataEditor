@@ -36,6 +36,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
 
         self.central_widget.image_added.connect(self.sidebar.add_image)
+        self.central_widget.image_removed.connect(self.sidebar.remove_image)
 
         self.sidebar.image_selected.connect(lambda path: print("Selected:", path))
 

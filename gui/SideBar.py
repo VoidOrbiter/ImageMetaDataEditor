@@ -42,7 +42,7 @@ class SideBar(QWidget):
             return
 
         index = self.image_paths.index(file_path)
-        self.image_list.setCurrentRow(index)  # highlights the selected image
+        self.image_list.setCurrentRow(index)
         self.update_metadata(file_path)
 
     def update_metadata(self, file_path):
@@ -76,3 +76,22 @@ class SideBar(QWidget):
         index = self.image_list.row(current)
         file_path = self.image_paths[index]
         self.update_metadata(file_path)
+
+    def remove_image(self, file_path):
+        if file_path not in self.image_paths:
+            return
+
+        index = self.image_paths.index(file_path)
+        self.image_paths.pop(index)
+
+        if 0 <= index < self.image_list.count():
+            item = self.image_list.takeItem(index)
+            del item
+
+        # update selection safely
+        if self.image_list.count() > 0:
+            new_index = min(index, self.image_list.count() - 1)
+            self.image_list.setCurrentRow(new_index)
+        else:
+            self.image_name_label.setText("No Image Loaded")
+            self.metadata_list.clear()
