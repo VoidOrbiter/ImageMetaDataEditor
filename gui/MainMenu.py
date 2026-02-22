@@ -3,12 +3,15 @@ from PyQt6.QtWidgets import (
     QScrollArea, QGridLayout
 )
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 
 from utils.dragndrop import DragNDrop
 from utils.imageitem import ImageItem
 
 class MainMenu(QWidget):
+    image_added     = pyqtSignal(str)
+    image_clicked   = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.resize(800, 600)
@@ -35,7 +38,6 @@ class MainMenu(QWidget):
 
     def add_image(self, file_path):
         pixmap = QPixmap(file_path)
-
         if pixmap.isNull():
             return
 
@@ -45,11 +47,15 @@ class MainMenu(QWidget):
             Qt.TransformationMode.SmoothTransformation
         )
 
-        image_item = ImageItem(thumbnail)
+        image_item = ImageItem(thumbnail, file_path)
         image_item.remove_requested.connect(self.remove_image)
+
+        image_item.clicked.connect(lambda path=file_path: self.image_clicked.emit(path))
 
         self.image_items.append(image_item)
         self.rearrange_grid()
+
+        self.image_added.emit(file_path)
 
     def remove_image(self, widget):
         self.grid_layout.removeWidget(widget)
